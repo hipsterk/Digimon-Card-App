@@ -203,9 +203,6 @@ function applyRangeFilter(cards: ICard[], filter: number[], key: string): ICard[
 
 function applySortOrder(cards: ICard[], sort: ISort): ICard[] {
   const returnArray = [...new Set([...cards])];
-  if(sort.sortBy.element === 'playCost' || sort.sortBy.element === 'dp' ) {
-    return sort.ascOrder ? returnArray.sort(dynamicSortNumber(sort.sortBy.element)) : returnArray.sort(dynamicSortNumber(`-${sort.sortBy.element}`));
-  }
   return sort.ascOrder ? returnArray.sort(dynamicSort(sort.sortBy.element)) : returnArray.sort(dynamicSort(`-${sort.sortBy.element}`));
 }
 //endregion
@@ -217,7 +214,14 @@ export function dynamicSort(property: string): any {
     property = property.substr(1);
   }
   return function (a: any, b: any) {
-    let result = (a[property] < b[property]) ? -1 : (a[property] > b[property]) ? 1 : 0;
+    let result = a[property].toLowerCase().localeCompare(
+      b[property].toLowerCase(),
+      undefined,
+      {
+        numeric: true,
+        sensitivity: 'base',
+      }
+    );
     return result * sortOrder;
   }
 }
